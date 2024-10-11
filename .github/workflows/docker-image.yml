@@ -1,0 +1,40 @@
+name: Build, Push Docker Image
+
+on:
+  push:
+    branches:
+      - main  # Run the workflow when code is pushed to the main branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Docker Buildx (for cross-platform image building)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Step 3: Log in to Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Step 4: Build the Docker image
+      - name: Build Docker Image
+        run: docker build -t lexmarkkubernetes/apiservice:${{ github.sha }} .
+
+      # Step 5: Push the Docker image to Docker Hub
+      - name: Push Docker Image
+        run: docker push lexmarkkubernetes/apiservice:${{ github.sha }}
+
+      # Optional: Tag the image with `latest` and push
+      - name: Tag Image with latest
+        run: |
+          docker tag lexmarkkubernetes/apiservice:${{ github.sha }} lexmarkkubernetes/apiservice:latest
+          docker push lexmarkkubernetes/apiservice:latest

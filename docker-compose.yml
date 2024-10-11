@@ -1,0 +1,21 @@
+services:
+  api_microservice:
+    image: api_microservice
+    ports:
+      - "3001:3001"  # Expose api_microservice on port 3001
+    depends_on:
+      - mongodb
+
+  react_ui:
+    image: react_ui  # Replace with the actual image or build instructions for react_ui
+    ports:
+      - "3000:80"  # Expose react_ui on port 3000
+    depends_on:
+      - api_microservice
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"  # Expose MongoDB on port 27017
+    volumes:
+      - ./data:/data/db

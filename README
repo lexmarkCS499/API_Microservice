@@ -1,2 +1,0 @@
-This API microservice connects the User interface to the MongoDB Database.
-This currently only works in LocalHost.
