@@ -1,0 +1,11 @@
+# k8s/overlays/dev/deployment-patch.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-app
+spec:
+  template:
+    spec:
+      containers:
+        - name: api-app
+          image: docker.io/lexmarkkubernetes/apiservice:dev # Example of using a dev image tag

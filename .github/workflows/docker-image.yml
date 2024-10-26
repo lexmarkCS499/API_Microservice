@@ -38,3 +38,8 @@ jobs:
         run: |
           docker tag lexmarkkubernetes/apiservice:${{ github.sha }} lexmarkkubernetes/apiservice:latest
           docker push lexmarkkubernetes/apiservice:latest
+                # Optional: Tag the image with `latest` and push
+      - name: Tag Image with latest
+        run: |
+          docker tag lexmarkkubernetes/apiservice:${{ github.sha }} lexmarkkubernetes/apiservice:latest
+          docker push lexmarkkubernetes/apiservice:dev
