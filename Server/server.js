@@ -8,7 +8,7 @@ app.use(express.json());
 app.use(cors());
 
 // Connect to MongoDB
-mongoose.connect('mongodb://mongodb:27017/mongo-db', { // Change to your database name
+mongoose.connect('mongodb://mongo-db:27017/names', { // Change to your database name
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
