@@ -1,11 +1,11 @@
 resources:
-  - ../../../base
+  - ../../base
 
-namePrefix: dev-
+namePrefix: prod-
 
 images:
   - name: apiservice
-    newTag: latest-dev
+    newTag: latest-prod
 
 patches:
   - target:
@@ -24,4 +24,4 @@ patches:
               - name: api-container
                 env:
                   - name: ENV
-                    value: "dev"
+                    value: "prod"

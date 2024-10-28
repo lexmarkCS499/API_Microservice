@@ -1,22 +1,19 @@
-# k8s/base/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api-app # Ensure this matches the name used in patches or overlays
-  labels: # It's good practice to include labels in the metadata
-    app: api-app
+  name: api-deployment
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
-      app: api-app # This should match the labels of the template
+      app: api
   template:
     metadata:
       labels:
-        app: api-app # This should match the selector matchLabels
+        app: api
     spec:
       containers:
-        - name: api-app
-          image: lexmarkkubernetes/apiservice:latest # Use the latest tag here or adjust as needed
+        - name: api-container
+          image: lexmarkkubernetes/apiservice:latest
           ports:
-            - containerPort: 80
+            - containerPort: 3001

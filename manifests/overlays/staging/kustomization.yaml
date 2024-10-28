@@ -1,11 +1,11 @@
 resources:
-  - ../../../base
+  - ../../base
 
-namePrefix: dev-
+namePrefix: staging-
 
 images:
   - name: apiservice
-    newTag: latest-dev
+    newTag: latest-staging
 
 patches:
   - target:
@@ -24,4 +24,4 @@ patches:
               - name: api-container
                 env:
                   - name: ENV
-                    value: "dev"
+                    value: "staging"

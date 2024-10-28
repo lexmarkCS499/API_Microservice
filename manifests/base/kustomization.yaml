@@ -13,4 +13,4 @@ images:
 
 # Optional: add any common labels for easier management
 commonLabels:
-  app: api-service
+  app: api
