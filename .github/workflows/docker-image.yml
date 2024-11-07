@@ -4,9 +4,10 @@ on:
   push:
     branches:
       - main  # Run the workflow when code is pushed to the main branch
+      - dev
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -73,8 +74,52 @@ jobs:
             echo "No changes to commit"
           fi
 
+  update-parent-repo:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout submodule repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "Hunter-Abshire"
+          git config --global user.email "hunter.abshire17@yahoo.com"
+          git config --global --list  # List git config to verify
+
+      - name: Verify Token Access (Debug Step)
+        env:
+          GH_TOKEN: ${{ secrets.HUNTER_PAT }}
+        run: |
+          echo "Testing access to Lexmark repository with provided GH_TOKEN"
+          echo "The token is: ${{ secrets.HUNTER_PAT }}"
+          curl -I -H "Authorization: token ${{ secrets.HUNTER_PAT }}" https://api.github.com/repos/lexmarkCS499/Lexmark
+          curl -I -H "Authorization: token ${{ secrets.HUNTER_PAT }}" https://api.github.com/
+          # The response header should return a 200 if authorized, 403 if unauthorized
+
+      - name: Clone Parent Repository
+        env:
+          GH_TOKEN: ${{ secrets.HUNTER_PAT }}
+        run: |
+          echo "Cloning Lexmark repository..."
+          git clone -b dev https://x-access-token:${{ secrets.HUNTER_PAT }}@github.com/lexmarkCS499/Lexmark.git
+          git remote set-url origin https://${{ secrets.HUNTER_PAT }}@github.com/lexmarkCS499/API_Microservice.git
+          cd Lexmark
+          git submodule update --init --remote --merge API_Microservice
+          git add API_Microservice
+          if [[ $(git status --porcelain) ]]; then
+            git commit -m "Committing changes"
+          else
+            echo "No changes to commit, skipping commit."
+          fi
+
+          git push https://x-access-token:${{ secrets.HUNTER_PAT }}@github.com/lexmarkCS499/Lexmark.git dev
+
+  
   deploy:
-    needs: build-and-deploy
+    needs: update-parent-repo
     runs-on: ubuntu-latest
 
     steps:
@@ -92,9 +137,9 @@ jobs:
           ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
         run: |
           if [ "${{ github.ref_name }}" == "dev" ]; then
-            ./argocd app sync dev-apiservice --server $ARGOCD_SERVER --auth-token $ARGOCD_TOKEN --grpc-web --prune
+            ./argocd app sync my-micro-services-app-dev --server $ARGOCD_SERVER --auth-token $ARGOCD_TOKEN --grpc-web --prune
           elif [ "${{ github.ref_name }}" == "staging" ]; then
-            ./argocd app sync staging-apiservice --server $ARGOCD_SERVER --auth-token $ARGOCD_TOKEN --grpc-web --prune
+            ./argocd app sync my-micro-services-app-staging --server $ARGOCD_SERVER --auth-token $ARGOCD_TOKEN --grpc-web --prune
           elif [ "${{ github.ref_name }}" == "prod" ]; then
-            ./argocd app sync prod-apiservice --server $ARGOCD_SERVER --auth-token $ARGOCD_TOKEN --grpc-web --prune
+            ./argocd app sync my-micro-services-app-prod --server $ARGOCD_SERVER --auth-token $ARGOCD_TOKEN --grpc-web --prune
           fi
