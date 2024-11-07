@@ -69,7 +69,7 @@ jobs:
           
           if ! git diff --quiet; then
             git commit -am "Update Docker image to lexmarkkubernetes/apiservice:dev"
-            git push origin main
+            git push origin dev
           else
             echo "No changes to commit"
           fi
