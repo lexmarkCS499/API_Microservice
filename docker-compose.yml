@@ -1,0 +1,21 @@
+services:
+  api_microservice:
+    image: api_microservice
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mongodb
+
+  react_ui:
+    image: react_ui
+    ports:
+      - "3000:80"
+    depends_on:
+      - api_microservice
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data:/data/db
