@@ -137,7 +137,7 @@ jobs:
           ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
         run: |
           if [ "${{ github.ref_name }}" == "dev" ]; then
-            ./argocd app sync my-micro-services-app-dev --server $ARGOCD_SERVER --auth-token $ARGOCD_TOKEN --grpc-web --prune
+            ./argocd app sync my-microservices-app-dev --server $ARGOCD_SERVER --auth-token $ARGOCD_TOKEN --grpc-web --prune
           elif [ "${{ github.ref_name }}" == "staging" ]; then
             ./argocd app sync my-micro-services-app-staging --server $ARGOCD_SERVER --auth-token $ARGOCD_TOKEN --grpc-web --prune
           elif [ "${{ github.ref_name }}" == "prod" ]; then
