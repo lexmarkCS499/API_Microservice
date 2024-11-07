@@ -55,7 +55,7 @@ jobs:
       # Step 7: Update Kubernetes manifest with the new Docker image tag
       - name: Update Kubernetes Manifest
         run: |
-          sed -i "s|image: lexmarkkubernetes/apiservice:.*|image: lexmarkkubernetes/apiservice:${{ github.sha }}|g" manifests/base/deployment.yaml
+          sed -i "s|image: lexmarkkubernetes/apiservice:.*|image: lexmarkkubernetes/apiservice:${{ github.sha }}|g" manifests/deployment.yaml
 
       # Step 8: Commit and push the updated manifest
       - name: Commit and push changes if any
