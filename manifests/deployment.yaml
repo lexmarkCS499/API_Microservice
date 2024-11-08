@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
         - name: api-container
-          image: lexmarkkubernetes/apiservice:242540cb26b18afb196a8a5d819885ffefca0b57
+          image: lexmarkkubernetes/apiservice:eb57a0c44327153675a2995c8abd4a1fe8c1bc6d
           ports:
             - containerPort: 3001
