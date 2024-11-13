@@ -104,8 +104,8 @@ jobs:
         run: |
           echo "Cloning Lexmark repository..."
           git clone -b dev https://x-access-token:${{ secrets.HUNTER_PAT }}@github.com/lexmarkCS499/Lexmark.git
-          git remote set-url origin https://${{ secrets.HUNTER_PAT }}@github.com/lexmarkCS499/API_Microservice.git
           cd Lexmark
+          git config -f .gitmodules submodule.API_Microservice.branch dev
           git submodule update --init --remote --merge API_Microservice
           git add API_Microservice
           if [[ $(git status --porcelain) ]]; then
