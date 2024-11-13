@@ -1,9 +1,9 @@
 name: Build, Push Docker Image, and Deploy to Minikube
 
 on:
-  push:
+  pull_request:
     branches:
-      - dev
+      - staging
 
 jobs:
   build:
@@ -55,7 +55,7 @@ jobs:
       # Step 7: Update Kubernetes manifest with the new Docker image tag
       - name: Update Kubernetes Manifest
         run: |
-          sed -i "s|image: lexmarkkubernetes/apiservice-staging:.*|image: lexmarkkubernetes/apiservice-staging:${{ github.sha }}|g" manifests/deployment.yaml
+          sed -i "s|image: lexmarkkubernetes/apiservice-staging:.*|image: lexmarkkubernetes/apiservice-staging:${{ github.sha }}|g" manifests/staging/deployment.yaml
 
       # Step 8: Commit and push the updated manifest
       - name: Commit and push changes if any
