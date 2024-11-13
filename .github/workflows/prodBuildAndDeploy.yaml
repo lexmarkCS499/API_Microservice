@@ -107,7 +107,8 @@ jobs:
           echo "Cloning Lexmark repository..."
           git clone -b prod https://x-access-token:${{ secrets.HUNTER_PAT }}@github.com/lexmarkCS499/Lexmark.git
           cd Lexmark
-          git config -f .gitmodules submodule.API_Microservice.branch prod
+          git submodule update --init --remote --merge UI_Microservice
+          git checkout prod
           git submodule update --init --remote --merge API_Microservice
           git add API_Microservice
           if [[ $(git status --porcelain) ]]; then
