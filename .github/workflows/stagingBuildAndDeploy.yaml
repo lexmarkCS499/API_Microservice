@@ -68,7 +68,7 @@ jobs:
           
           if ! git diff --quiet; then
             git commit -am "Update Docker image to lexmarkkubernetes/apiservice-staging:latest"
-            git push origin dev
+            git push origin staging
           else
             echo "No changes to commit"
           fi
