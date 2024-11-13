@@ -67,6 +67,8 @@ jobs:
           git remote set-url origin https://${{ secrets.PAT_TOKEN }}@github.com/lexmarkCS499/API_Microservice.git
           
           if ! git diff --quiet; then
+            git fetch origin
+            git checkout prod
             git commit -am "Update Docker image to lexmarkkubernetes/apiservice-prod:latest"
             git push origin prod
           else
