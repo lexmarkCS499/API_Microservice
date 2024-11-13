@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+        - name: api-container
+          image: lexmarkkubernetes/apiservice-staging:eb57a0c44327153675a2995c8abd4a1fe8c1bc6d
+          ports:
+            - containerPort: 3001

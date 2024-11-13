@@ -1,0 +1,16 @@
+# kustomization.yaml (in k8s/base)
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - deployment.yaml
+  - service.yaml
+
+images:
+  - name: docker.io/lexmarkkubernetes/apiservice
+    newName: docker.io/lexmarkkubernetes/apiservice
+    newTag: latest  # Set the specific tag here if needed (e.g., "v1.0.0")
+
+# Optional: add any common labels for easier management
+commonLabels:
+  app: api
