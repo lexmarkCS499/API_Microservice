@@ -103,9 +103,9 @@ jobs:
           GH_TOKEN: ${{ secrets.HUNTER_PAT }}
         run: |
           echo "Cloning Lexmark repository..."
-          git clone -b dev https://x-access-token:${{ secrets.HUNTER_PAT }}@github.com/lexmarkCS499/Lexmark.git
+          git clone -b staging https://x-access-token:${{ secrets.HUNTER_PAT }}@github.com/lexmarkCS499/Lexmark.git
           cd Lexmark
-          git config -f .gitmodules submodule.API_Microservice.branch dev
+          git config -f .gitmodules submodule.API_Microservice.branch staging
           git submodule update --init --remote --merge API_Microservice
           git add API_Microservice
           if [[ $(git status --porcelain) ]]; then
@@ -114,7 +114,7 @@ jobs:
             echo "No changes to commit, skipping commit."
           fi
 
-          git push https://x-access-token:${{ secrets.HUNTER_PAT }}@github.com/lexmarkCS499/Lexmark.git dev
+          git push https://x-access-token:${{ secrets.HUNTER_PAT }}@github.com/lexmarkCS499/Lexmark.git staging
 
   
 #   deploy:
