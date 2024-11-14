@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: api-deployment
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: api
@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
         - name: api-container
-          image: lexmarkkubernetes/apiservice-staging:3f7a3073167d93bd2113c98f68eebc74ead77bba
+          image: lexmarkkubernetes/apiservice-staging:ea2b693736ccf1a282ed97286c12eeaf73f742c0
           ports:
             - containerPort: 3001
