@@ -3,8 +3,7 @@ name: Build, Push Docker Image, and Deploy to Minikube
 on:
   push:
     branches:
-      - main  # Run the workflow when code is pushed to the main branch
-      - dev
+      - staging
 
 jobs:
   build:
@@ -28,35 +27,35 @@ jobs:
 
       # Step 4: Build the Docker image
       - name: Build Docker Image
-        run: docker build -t lexmarkkubernetes/apiservice:${{ github.sha }} .
+        run: docker build -t lexmarkkubernetes/apiservice-staging:${{ github.sha }} .
 
       # Step 5: Push the Docker image to Docker Hub
       - name: Push Docker Image
-        run: docker push lexmarkkubernetes/apiservice:${{ github.sha }}
+        run: docker push lexmarkkubernetes/apiservice-staging:${{ github.sha }}
 
       # Step 6: Tag the image with a version
-      - name: Tag Image with version
-        run: |
-          VERSION=v1.0.$(echo ${{ github.run_number }})
-          docker tag lexmarkkubernetes/apiservice:${{ github.sha }} lexmarkkubernetes/apiservice:$VERSION
-          docker push lexmarkkubernetes/apiservice:$VERSION
+      # - name: Tag Image with version
+      #   run: |
+      #     VERSION=v1.0.$(echo ${{ github.run_number }})
+      #     docker tag lexmarkkubernetes/apiservice-dev:${{ github.sha }} lexmarkkubernetes/apiservice:$VERSION
+      #     docker push lexmarkkubernetes/apiservice-dev:$VERSION
 
       # Tag Image with latest
       - name: Tag Image with latest
         run: |
-          docker tag lexmarkkubernetes/apiservice:${{ github.sha }} lexmarkkubernetes/apiservice:latest
-          docker push lexmarkkubernetes/apiservice:latest
+          docker tag lexmarkkubernetes/apiservice-staging:${{ github.sha }} lexmarkkubernetes/apiservice-staging:latest
+          docker push lexmarkkubernetes/apiservice-staging:latest
 
-      # Tag Image with dev
-      - name: Tag Image with dev
-        run: |
-          docker tag lexmarkkubernetes/apiservice:${{ github.sha }} lexmarkkubernetes/apiservice:dev
-          docker push lexmarkkubernetes/apiservice:dev
+      # # Tag Image with dev
+      # - name: Tag Image with dev
+      #   run: |
+      #     docker tag lexmarkkubernetes/apiservice:${{ github.sha }} lexmarkkubernetes/apiservice:dev
+      #     docker push lexmarkkubernetes/apiservice:dev
 
       # Step 7: Update Kubernetes manifest with the new Docker image tag
       - name: Update Kubernetes Manifest
         run: |
-          sed -i "s|image: lexmarkkubernetes/apiservice:.*|image: lexmarkkubernetes/apiservice:${{ github.sha }}|g" manifests/deployment.yaml
+          sed -i "s|image: lexmarkkubernetes/apiservice-staging:.*|image: lexmarkkubernetes/apiservice-staging:${{ github.sha }}|g" manifests/staging/deployment.yaml
 
       # Step 8: Commit and push the updated manifest
       - name: Commit and push changes if any
@@ -68,8 +67,10 @@ jobs:
           git remote set-url origin https://${{ secrets.PAT_TOKEN }}@github.com/lexmarkCS499/API_Microservice.git
           
           if ! git diff --quiet; then
-            git commit -am "Update Docker image to lexmarkkubernetes/apiservice:dev"
-            git push origin dev
+            git fetch origin
+            git checkout staging
+            git commit -am "Update Docker image to lexmarkkubernetes/apiservice-staging:latest"
+            git push origin staging
           else
             echo "No changes to commit"
           fi
@@ -104,42 +105,42 @@ jobs:
           GH_TOKEN: ${{ secrets.HUNTER_PAT }}
         run: |
           echo "Cloning Lexmark repository..."
-          git clone -b dev https://x-access-token:${{ secrets.HUNTER_PAT }}@github.com/lexmarkCS499/Lexmark.git
-          git remote set-url origin https://${{ secrets.HUNTER_PAT }}@github.com/lexmarkCS499/API_Microservice.git
+          git clone -b staging https://x-access-token:${{ secrets.HUNTER_PAT }}@github.com/lexmarkCS499/Lexmark.git
           cd Lexmark
+          git config -f .gitmodules submodule.API_Microservice.branch staging
           git submodule update --init --remote --merge API_Microservice
-          git add API_Microservice
+          git add .gitmodules API_Microservice
           if [[ $(git status --porcelain) ]]; then
             git commit -m "Committing changes"
           else
             echo "No changes to commit, skipping commit."
           fi
 
-          git push https://x-access-token:${{ secrets.HUNTER_PAT }}@github.com/lexmarkCS499/Lexmark.git dev
+          git push https://x-access-token:${{ secrets.HUNTER_PAT }}@github.com/lexmarkCS499/Lexmark.git staging
 
   
-  deploy:
-    needs: update-parent-repo
-    runs-on: ubuntu-latest
+#   deploy:
+#     needs: update-parent-repo
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v2
 
-      - name: Download and Install ArgoCD CLI in Working Directory
-        run: |
-          curl -sSL -o ./argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-          chmod +x ./argocd
+#       - name: Download and Install ArgoCD CLI in Working Directory
+#         run: |
+#           curl -sSL -o ./argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+#           chmod +x ./argocd
 
-      - name: Sync ArgoCD Application
-        env:
-          ARGOCD_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
-          ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
-        run: |
-          if [ "${{ github.ref_name }}" == "dev" ]; then
-            ./argocd app sync my-microservices-app-dev --server $ARGOCD_SERVER --auth-token $ARGOCD_TOKEN --grpc-web --prune
-          elif [ "${{ github.ref_name }}" == "staging" ]; then
-            ./argocd app sync my-micro-services-app-staging --server $ARGOCD_SERVER --auth-token $ARGOCD_TOKEN --grpc-web --prune
-          elif [ "${{ github.ref_name }}" == "prod" ]; then
-            ./argocd app sync my-micro-services-app-prod --server $ARGOCD_SERVER --auth-token $ARGOCD_TOKEN --grpc-web --prune
-          fi
+#       - name: Sync ArgoCD Application
+#         env:
+#           ARGOCD_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
+#           ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
+#         run: |
+#           if [ "${{ github.ref_name }}" == "dev" ]; then
+#             ./argocd app sync my-microservices-app-dev --server $ARGOCD_SERVER --auth-token $ARGOCD_TOKEN --grpc-web --prune
+#           elif [ "${{ github.ref_name }}" == "staging" ]; then
+#             ./argocd app sync my-micro-services-app-staging --server $ARGOCD_SERVER --auth-token $ARGOCD_TOKEN --grpc-web --prune
+#           elif [ "${{ github.ref_name }}" == "prod" ]; then
+#             ./argocd app sync my-micro-services-app-prod --server $ARGOCD_SERVER --auth-token $ARGOCD_TOKEN --grpc-web --prune
+#           fi
